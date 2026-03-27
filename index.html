@@ -116,6 +116,75 @@ body{background:#0d0805;color:#fef3e2;font-family:'Cormorant Garamond',serif;ove
 .fb-status.offline{background:rgba(200,100,60,0.2);color:#e8a080;border:1px solid rgba(200,100,60,0.3);opacity:1;}
 .fb-status.fade{opacity:0;}
 
+/* ══ TAP INTRO ══ */
+.tap-intro{
+  position:fixed;inset:0;z-index:99999;
+  background:radial-gradient(ellipse at 50% 50%, #1a120b, #0a0604);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:opacity .8s ease, visibility .8s ease;
+}
+.tap-intro.hide{opacity:0;visibility:hidden;pointer-events:none;}
+.tap-inner{
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  animation:tapFloat 3s ease-in-out infinite;
+}
+@keyframes tapFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.tap-ornament{font-size:24px;color:#c9a66b;opacity:0.5;}
+.tap-names{
+  font-family:'Great Vibes',cursive;font-size:42px;color:#f5dfc0;
+  text-shadow:0 0 30px rgba(201,166,107,0.3);
+}
+.tap-line{width:80px;height:1px;background:linear-gradient(90deg,transparent,#c9a66b,transparent);}
+.tap-cta{
+  font-family:'Cinzel',serif;font-size:13px;font-weight:600;
+  letter-spacing:6px;text-transform:uppercase;color:#c9a66b;
+  animation:tapPulse 2s ease-in-out infinite;
+}
+@keyframes tapPulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+.tap-ring{
+  position:absolute;width:200px;height:200px;border-radius:50%;
+  border:1px solid rgba(201,166,107,0.1);
+  animation:tapRing 3s ease-in-out infinite;
+}
+@keyframes tapRing{0%,100%{transform:scale(0.9);border-color:rgba(201,166,107,0.05);}50%{transform:scale(1.1);border-color:rgba(201,166,107,0.2);}}
+
+@media(max-width:600px){
+  .tap-names{font-size:32px;}
+  .tap-cta{font-size:11px;letter-spacing:4px;}
+}
+
+/* ══ MUSIC BUTTON ══ */
+.music-btn{
+  position:fixed;bottom:28px;left:28px;z-index:999;
+  width:50px;height:50px;border:none;
+  background:rgba(13,8,5,0.7);
+  border:1px solid rgba(201,166,107,0.35);
+  border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 16px rgba(0,0,0,0.3);
+  transition:all .3s ease;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+.music-btn:hover{transform:scale(1.1);border-color:rgba(201,166,107,0.6);}
+.music-btn svg{width:22px;height:22px;fill:#c9a66b;transition:all .3s ease;}
+.music-btn.playing svg{fill:#f5dfc0;filter:drop-shadow(0 0 6px rgba(201,166,107,0.5));}
+.music-btn .bars{display:flex;align-items:flex-end;gap:3px;height:18px;}
+.music-btn .bar{
+  width:3px;background:#c9a66b;border-radius:2px;
+  transition:background .3s ease;
+}
+.music-btn.playing .bar{background:#f5dfc0;animation:barPulse 0.8s ease-in-out infinite alternate;}
+.music-btn .bar:nth-child(1){height:6px;animation-delay:0s;}
+.music-btn .bar:nth-child(2){height:12px;animation-delay:0.15s;}
+.music-btn .bar:nth-child(3){height:8px;animation-delay:0.3s;}
+.music-btn .bar:nth-child(4){height:14px;animation-delay:0.45s;}
+.music-btn:not(.playing) .bar{animation:none!important;}
+@keyframes barPulse{
+  0%{height:4px;}
+  100%{height:18px;}
+}
+
 @media(max-width:600px){
   .s-name{font-size:58px;}
   .s-weds{font-size:14px;letter-spacing:10px;}
@@ -126,6 +195,7 @@ body{background:#0d0805;color:#fef3e2;font-family:'Cormorant Garamond',serif;ove
   .s2-quote{font-size:18px;}.divider-names{font-size:26px;}
   .heart-btn{width:52px;height:52px;}.heart-btn svg{width:24px;height:24px;}
   .heart-wrapper{bottom:20px;right:20px;}
+  .music-btn{width:44px;height:44px;bottom:20px;left:20px;}
 }
 </style>
 </head>
@@ -133,7 +203,41 @@ body{background:#0d0805;color:#fef3e2;font-family:'Cormorant Garamond',serif;ove
 
 <div class="fb-status" id="fbStatus"></div>
 
-<div class="splash" id="splash">
+<!-- ══════════════════════════════════════════════════
+     🎵 MUSIC — HOW TO ADD YOUR SONG:
+     
+     1. Put your music file (e.g. "song.mp3") in the 
+        SAME FOLDER as this HTML file on GitHub
+     2. Change the filename below from "song.mp3" 
+        to your actual file name
+     
+     Supported formats: .mp3, .ogg, .wav, .m4a
+     ══════════════════════════════════════════════════ -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+
+<button class="music-btn" id="musicBtn" aria-label="Toggle Music">
+  <div class="bars">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+</button>
+
+<!-- TAP TO BEGIN — starts music + animation together -->
+<div class="tap-intro" id="tapIntro">
+  <div class="tap-inner">
+    <div class="tap-ornament">✦</div>
+    <div class="tap-names">Garima & Rachit</div>
+    <div class="tap-line"></div>
+    <div class="tap-cta">Tap to Open</div>
+    <div class="tap-ring"></div>
+  </div>
+</div>
+
+<div class="splash" id="splash" style="opacity:0;">
   <div class="splash-particles" id="sParticles"></div>
   <div class="splash-ring"></div><div class="splash-ring2"></div><div class="splash-ring3"></div>
   <div class="splash-content">
@@ -303,15 +407,59 @@ body{background:#0d0805;color:#fef3e2;font-family:'Cormorant Garamond',serif;ove
     sp.appendChild(p);
   }
 
-  setTimeout(()=>document.getElementById('sName1').classList.add('go'), 400);
-  setTimeout(()=>document.getElementById('sWeds').classList.add('go'), 1300);
-  setTimeout(()=>document.getElementById('sName2').classList.add('go'), 2000);
-  setTimeout(()=>document.getElementById('sName2').classList.add('shimmer-go'), 3000);
-  setTimeout(()=>document.getElementById('sDate').classList.add('go'), 3200);
-  setTimeout(()=>{
-    document.getElementById('splash').classList.add('hide');
-    document.getElementById('heartWrapper').style.display='flex';
-  }, 5200);
+  /* ══ MUSIC PLAYER ══ */
+  const bgMusic = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicBtn');
+  const tapIntro = document.getElementById('tapIntro');
+  const splash = document.getElementById('splash');
+  let musicPlaying = false;
+  let started = false;
+
+  // ── TAP TO BEGIN — starts music + splash animation together ──
+  tapIntro.addEventListener('click', startEverything);
+  tapIntro.addEventListener('touchend', startEverything);
+
+  function startEverything(e) {
+    e.preventDefault();
+    if (started) return;
+    started = true;
+
+    // Start music immediately
+    bgMusic.play().then(() => {
+      musicPlaying = true;
+      musicBtn.classList.add('playing');
+    }).catch(() => {});
+
+    // Hide tap screen
+    tapIntro.classList.add('hide');
+
+    // Show & start splash animations
+    splash.style.opacity = '1';
+    setTimeout(() => document.getElementById('sName1').classList.add('go'), 400);
+    setTimeout(() => document.getElementById('sWeds').classList.add('go'), 1300);
+    setTimeout(() => document.getElementById('sName2').classList.add('go'), 2000);
+    setTimeout(() => document.getElementById('sName2').classList.add('shimmer-go'), 3000);
+    setTimeout(() => document.getElementById('sDate').classList.add('go'), 3200);
+    setTimeout(() => {
+      splash.classList.add('hide');
+      document.getElementById('heartWrapper').style.display = 'flex';
+    }, 5200);
+  }
+
+  // Toggle music on button click
+  musicBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (musicPlaying) {
+      bgMusic.pause();
+      musicPlaying = false;
+      musicBtn.classList.remove('playing');
+    } else {
+      bgMusic.play().then(() => {
+        musicPlaying = true;
+        musicBtn.classList.add('playing');
+      }).catch(() => {});
+    }
+  });
 
   /* ══ SPARKLES ══ */
   const sf = document.getElementById('sparkleField');
